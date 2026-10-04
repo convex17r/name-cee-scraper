@@ -161,6 +161,7 @@ document.addEventListener('click', (e) => {
 
 $('searchBtn').onclick = async () => {
   const kw = $('kw').value.trim(); if(!kw) return;
+  $('searchBtn').disabled = true; $('searchBtn').textContent = 'Searching...';
   log(`[*] Querying for "${kw}" ...`);
   let results = [];
   try {
@@ -170,7 +171,7 @@ $('searchBtn').onclick = async () => {
   } catch(e){ log('[!] ' + e.message); }
   if(!results.length){
     try {
-      const recent = (await supa('exam_results', {select:'exam_id', limit:15000, order:'id.desc'})).map(x=>x.exam_id);
+      const recent = (await supa('exam_results', {select:'exam_id', limit:3000, order:'id.desc'})).map(x=>x.exam_id);
       results = [...new Set(recent)].filter(e=>matchExam(e,kw));
       if(!results.length){
         const terms = normTerms(kw);
@@ -178,6 +179,7 @@ $('searchBtn').onclick = async () => {
       }
     } catch(e){}
   }
+  $('searchBtn').disabled = false; $('searchBtn').textContent = 'Search';
   const seen=new Set(); results=results.filter(e=>!seen.has(e)&&seen.add(e));
   $('examList').innerHTML = results.slice(0,40).map((e,i)=>`<div class="exam" data-v="${e.replace(/"/g,'&quot;')}">${i+1}. ${e}</div>`).join('') || '<div class="dim">No matches found.</div>';
   document.querySelectorAll('.exam').forEach(el=>el.onclick=()=>{document.querySelectorAll('.exam').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');selectedExam=el.dataset.v;log('[+] Selected: '+selectedExam);});
@@ -195,7 +197,7 @@ $('runBtn').onclick = async () => {
   allRows = []; $('matches').innerHTML=''; $('log').textContent=''; $('bar').style.width='0%';
   log(`[*] Exam: ${exam}\n[*] Range ${s}-${e} | Score ${mn}-${mx}\n`);
   const ids=[]; for(let i=s;i<=e;i++) ids.push(i);
-  const BATCH=250, CONC=12; let done=0;
+  const BATCH=250, CONC=6; let done=0;
   async function batch(chunk){
     try{
       let data = await supa('exam_results', {select:'candidate_id,exam_mark', exam_id:`eq.${exam}`, candidate_id:`in.(${chunk.join(',')})`});
@@ -248,20 +250,15 @@ function drawChart(){
   const sorted=[...scores].sort((a,b)=>a-b);
   const median = sorted.length%2? sorted[(sorted.length-1)/2] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
   if(chart) chart.destroy();
-  const ctx = $('chart').getContext('2d');
-  // varied random-looking gradient (no special meaning)
-  const stops = ['#e03131','#fb923c','#facc15','#4ade80','#22d3ee','#a78bfa'];
-  const g = ctx.createLinearGradient(0,0,ctx.canvas.width,0);
-  stops.forEach((c,i)=>g.addColorStop(i/(stops.length-1), c + 'aa'));
-  const stroke = ctx.createLinearGradient(0,0,ctx.canvas.width,0);
-  stops.forEach((c,i)=>stroke.addColorStop(i/(stops.length-1), c));
+  // clean teal gradient (area fill), fixed sizes kept simple
   const fg = '#e9ecef';
   const dim = '#9aa0ae';
   chart = new Chart($('chart'), {
     type:'line',
     data:{ labels, datasets:[{
       label:'Candidates', data:counts, fill:true, tension:0.3,
-      borderColor:stroke, backgroundColor:g,
+      borderColor:'#facc15',
+      backgroundColor:(()=>{const c0=document.getElementById('chart').getContext('2d');const g0=c0.createLinearGradient(0,0,0,300);g0.addColorStop(0,'rgba(250,204,21,0.55)');g0.addColorStop(1,'rgba(250,204,21,0.03)');return g0;})(),
       pointRadius:2, pointBackgroundColor:'#facc15', pointBorderColor:'white', pointBorderWidth:0.5
     }]},
     options:{
