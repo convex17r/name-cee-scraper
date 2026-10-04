@@ -6,7 +6,7 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 ### Script to search/scrape NAME Institute Medical Entrance Model Exam Result Database.
 ------
 
-⚠ *This is strictly for educational and research purposes only. The scraped data is publicly available data and no hacking is performed by the script on nobody.* ⚠
+⚠ *This is strictly for educational and research purposes only. The scraped data is publicly available data and no hacking is performed by the script on nobody. I am not affiliated with NAME or any living or non-living entity whatsoever.* ⚠
 
 🔗 (https://name.edu.np/results) 
 
@@ -48,6 +48,6 @@ There are two methods that you can use to run this script:
 ------------------
 #### - Method B: (Webapp) (Easiest)
 
-🚧 Under-Construction 🚧
+🚧 Under-Construction 🚧 almost done
 
 ---------------------
