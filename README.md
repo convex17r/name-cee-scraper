@@ -36,11 +36,11 @@ There are two methods that you can use to run this script:
 
 -------------------------------------------
 
-### - Method A: (Webapp) (Easiest) (Recommended)
+### - Method A: (Webapp) (Easiest) (Recommended) .
 
-- Web-app: https://convex17r.github.io/name-cee-scraper/
+- Web-app **[Status: 🟢]**: https://convex17r.github.io/name-cee-scraper/
 
-_Its pretty self-explanatory, but **slower** compared to local run (Method B)._
+_Its pretty self-explanatory, ~~but **slower** compared to local run (Method B).~~ Now its faster but still Method B is reliable long term._
 
 -------------------------------------------------
 
