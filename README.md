@@ -4,17 +4,18 @@
 ### Script to search/scrape NAME Institute Medical Entrance Model Exam Result Database.
 ------
 
-⚠ *This is strictly for educational and research purposes only.* ⚠
+⚠ *This is strictly for educational and research purposes only. The scraped data is publicly available data and no hacking is performed by the script on nobody.* ⚠
 
 🔗 (https://name.edu.np/results) 
 
 *I am not responsible for misuse of the provided material*
+
+- Also useful for **larping** (trying to be someone you're not) your scores.
+
 -------
 ### **Features**:
 
-⭐ Uses Header API and Bearer Key
-
-⭐ Search Database so you can search/scrape older ones
+⭐ Search Database Feature so you can search/scrape any older test results
 
 ⭐ Custom Symbol Number Search
 
@@ -22,7 +23,9 @@
 
 ⭐ Grab Available Student Name and Group
 
-⭐ Super High Speed <30s
+⭐ Super High Speed (<30s for 3k+ Export)
+
+⭐ Excel .csv report and bar chart for proper research
 
 -------
 ### 📌 Preview Video:
@@ -32,11 +35,17 @@ https://www.youtube.com/watch?v=q_4LDGCfVJ4
 
 -----------
 ### ❓ How to use:
-
-_⚠ Make sure to watch this video () on how to get Header API & Bearer API Keys for the script to work.
-There are two methods that you can use:_
+There are two methods that you can use:
 
 -------------------
-#### Method A: 
+#### - Method A: (Local-Self Hosted) (Recommended for now)
 
-- Just download python and run the script very easily
+- Just [Download Python](https://www.python.org/downloads/) and run the script, nothing needed.
+- For Advanced users you can use .env yourself by going on F12 -> Network -> Headers and get your own Header API.
+
+------------------
+#### - Method B: (Webapp) (Easiest)
+
+🚧 Under-Construction 🚧
+
+---------------------
