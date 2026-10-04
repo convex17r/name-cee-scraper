@@ -26,3 +26,16 @@
 
 -------
 ### 📌 Preview Video:
+
+
+
+-----------
+### ❓ How to use:
+
+_⚠ Make sure to watch this video () on how to get Header API & Bearer API Keys for the script to work.
+There are two methods that you can use:_
+
+-------------------
+#### Method A: 
+
+- Just download python and run the script very easily
