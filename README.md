@@ -2,7 +2,7 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 <img width="354" height="128" alt="image" src="https://github.com/user-attachments/assets/219090ab-8f76-46ac-855d-b28d8b726efd" />
 
 
-# NAME-CEE-Result-scraper Tool
+# [NAME-CEE-Result-scraper Tool](https://convex17r.github.io/name-cee-scraper/)
 ### Open Source Script to search/scrape/dump NAME Institute Medical Entrance Model Exam Result Database.
 ------
 
