@@ -3,7 +3,7 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 
 
 # NAME-CEE-Result-scraper Tool
-### Script to search/scrape NAME Institute Medical Entrance Model Exam Result Database.
+### Open Source Script to search/scrape/dump NAME Institute Medical Entrance Model Exam Result Database.
 ------
 
 ⚠ *This is strictly for educational and research purposes only. The scraped data is publicly available data and no hacking is performed by the script on nobody. I am not affiliated with NAME or any living or non-living entity whatsoever.* ⚠
@@ -29,25 +29,29 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 
 ⭐ Excel .csv report and bar chart for proper research
 
--------
-### 📌 Showcase Video:
+--------------------------------------------
 
-https://www.youtube.com/watch?v=q_4LDGCfVJ4
-[![thumbnail final](https://github.com/user-attachments/assets/105d4dd8-8f8e-4406-90fa-d495531d7394)](https://www.youtube.com/watch?v=q_4LDGCfVJ4)
-
------------
 ### ❓ How to use:
 There are two methods that you can use to run this script:
 
--------------------
-#### - Method A: (Local-Self Hosted) (Recommended for now)
+-------------------------------------------
+
+### - Method A: (Webapp) (Easiest) (Recommended)
+
+- Web-app: 
+
+-------------------------------------------------
+
+#### - Method B: (Local-Self Hosted) (For Advanced Users)
 
 - Just [Download Python](https://www.python.org/downloads/) and run the script, nothing needed.
 - For Advanced users you can use .env yourself by going on F12 -> Network -> Headers and get your own Header API.
 
 ------------------
-#### - Method B: (Webapp) (Easiest)
 
-🚧 Under-Construction 🚧 almost done
+### 📌 Showcase Video: (Local Run)
 
----------------------
+https://www.youtube.com/watch?v=q_4LDGCfVJ4
+[![thumbnail final](https://github.com/user-attachments/assets/105d4dd8-8f8e-4406-90fa-d495531d7394)](https://www.youtube.com/watch?v=q_4LDGCfVJ4)
+
+-----------
