@@ -31,14 +31,16 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 
 --------------------------------------------
 
-### ❓ How to use:
+## ❓ How to use:
 There are two methods that you can use to run this script:
 
 -------------------------------------------
 
 ### - Method A: (Webapp) (Easiest) (Recommended)
 
-- Web-app: 
+- Web-app: https://convex17r.github.io/name-cee-scraper/
+
+_Its pretty self-explanatory, but **slower** compared to local run (Method B)._
 
 -------------------------------------------------
 
