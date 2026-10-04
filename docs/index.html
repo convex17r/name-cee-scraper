@@ -90,6 +90,8 @@
     </select>
     <button id="runBtn" style="margin-top:12px">▶ START SCAN</button>
     <div id="progress"><div id="bar"></div></div>
+    <div id="etaText" style="margin-top:6px;font-size:12px;color:var(--dim)"></div>
+    <div id="facts" style="margin-top:10px;font-size:12px;color:var(--yellow);background:#161a24;border:1px dashed var(--border);padding:10px;min-height:40px"></div>
   </div>
 
   <div class="panel">
@@ -128,6 +130,170 @@ const $ = id => document.getElementById(id);
 const log = m => { $('log').textContent += m + "\n"; $('log').scrollTop = 1e9; };
 let selectedExam = null, allRows = [], chart = null, currentExam = null;
 
+
+const FACTS = [
+  "Flowers are morphological & embryological marvels & the site of sexual reproduction.",
+  "Several hormonal & structural changes leads to the development of ﬂoral primordium.",
+  "A ﬂower is a modiﬁed shoot for reproduction.",
+  "A typical stamen has two part.",
+  "Filament (Long & slender stalk)",
+  "Anther (Terminal, generally bilobed structure)",
+  "The proximal end of the ﬁlament is attached to the thalamus or Petal of the ﬂower",
+  "The number & length of stamens are variable in ﬂowers of diﬀerent species.",
+  "Angiospermic Anther: Bilobed, Dithecous & Tetrasporangiate",
+  "Bilobed nature of an anther is very distinct in the transverse section.",
+  "Structure of Microsporangium: Surrounded by four wall layer.",
+  "Tapetum Nourishes the developing pollengrain Cells of the tapetum posses dense cytoplasm and generally have more than one nucleus.",
+  "Epidermis 2 . Endothecium 3 . Middle layer Perform the function of protection and help in dehiscence of anther to release the pollen}",
+  "Microsporogenesis: Cells of the sporogenous tissue undergo meiotic divisions to form microspore tetrads. Each microspore mature into pollen grain.",
+  "As the anther mature & dehydrate, the microspore dissociate from each other & develop into pollen grains. Pollen grain: Represents Male gametophytes.",
+  "Generally spherical, about 25–50 micrometer in diameter.",
+  "It has prominent two wall layer, Exine & Intine. Exine: Outer, made up of sporopollenin (most resistent organic material)",
+  "Can withstand high temperature & strong acids & alkali. No enzyme that degrades sporopollenin.",
+  "Exine has prominent aperture called germpores where sporopollenin is absent.",
+  "Pollen grains are well-preserved as fossils because of the presence of sporopollen. (RE-NEET-2024)",
+  "Exine exhibits a fascinating array of pattern & designs.",
+  "Intine: Inner, thin & continuous, made up of cellulose & pectin.",
+  "Pollen grain of many species causes severe allergies & bronchial aﬄictions leading to chronic respiratory disorder like Asthma & Bronchitis.",
+  "Parthenium (carrot grass) came into india as a contaminant with imported wheat, causes pollen allergy.",
+  "Pollen grains rich in nutrients & use as pollen tablets as food supplements (to increase the performance of athletes & race horses)",
+  "Viability of pollen grain is highly variable & depends on temperature & Humidity.",
+  "Some cereals (Rice & Wheat) pollen grain lose viability within 30 minuts",
+  "Rosaceae, Leguminaceae, Solanaceae maintain viability for minutes",
+  "Pollen grain stored in liquid Nitrogen at - 196 C",
+  "Each Pistil has three parts - stigma, style, ovary",
+  "Stigma, serve as landing platform of pollen grains.",
+  "Style - elongated slender part beneath the stigma.",
+  "Ovary - Basal bulged part of the pistil.",
+  "Inside the ovary is the ovarian cavity (locule). Placenta located inside the ovarian cavity.",
+  "Ovule is small structure attached to the placenta by means of stalk called Funicle.",
+  "Body of the ovule fuses with funicle in the region called Hilum.",
+  "Junction between ovule & funicle– Hilum",
+  "One or two protective envelop of ovule called Integument",
+  "Micropyle: Small opening of the ovule at the tip where integument absent.",
+  "Opposite the micropyle is the Chalaza (Basal part of the ovule). (RE-NEET-2024)",
+  "Nucellus: Mass of cells have abundant reserve food materials.",
+  "Embryosac/Female gametophytes: Located in the nucellus. Megasporogenesis: Process of formation of megaspore from megaspore mother cell. (MMC)",
+  "Ovule diﬀerentiated at Micropylar region of the nucellus.",
+  "MMC undergoes meiotic division & results in the production of four megaspore.",
+  "In a majority of ﬂowering plants, one of the megaspore is functional while other three degenerate.",
+  "Functional megaspore develops into Female gametophytes (Embryosac)",
+  "Nucleus of the functional megaspore divided by 3 mitotic division to form 2-nucleated, 4-nucleated & 8-nucleated stage of the embryo sac.",
+  "Mitotic division are strictly free nuclear, not followed immediately by cell wall formation.",
+  "Six of the eight nuclei are surrounded by cell walls & organised into cells, remaining two nuclei called polar nuclei. 06",
+  "Distribution of cells within embryo sac.",
+  "Eggaparatus (3) 2. Antipodals(3) • Synergids(2) 3. Central cell (single & large containing two • Egg cell (1) polar nuclei)",
+  "Filiform appratus: Play important role in guiding the pollen tube into the synergids.",
+  "A typical angiosperm embryo sac, at maturity, through 8- nucleated & 7-celled. • Pollination",
+  "Transfer of pollen grain from anther to stigma of the pistil.",
+  "Kinds of pollination: depending on the source of pollen, divided into three types. • Autogamy",
+  "Pollination is achieved within the same ﬂower",
+  "Flower which opens & exposes the anthers & stigma, complete autogamy is rather rare",
+  "Viola(Common pansy), Oxalis &Commelina produce two types of ﬂowers - Chasmogamous - Cleistogamous",
+  "Chasmogamous (open ﬂowers) & cleistogamous (close ﬂowers)",
+  "Cleistogamous ﬂowers are invariably autogamous, there is no chance of cross-pollen landing on the stigma & produce assured seedset even in the absence of pollinators",
+  "Transfer of pollen grain from anther to stigma of another ﬂower of same plants.",
+  "Geitenogamy is functionally cross-pollination & genetically similar to autogamy. • Xenogamy",
+  "Transfer of pollen grains from anther to stigma of a diﬀerent plant.",
+  "Biotic (Animals) : Majority of plants use",
+  "Abiotic (wind & water) : Only small proportion of plant use",
+  "Pollination by wind is more common amongst abiotic pollinations",
+  "Light pollen grain & Non-sticky",
+  "Wind pollination is quite common in grasses.",
+  "Pollination by water: Quite rare in ﬂowering plants & limited to about 30 genera, mostly monocotyledons",
+  "Water Pollinated Plants Fresh water : Vallisneria & Hydrilla",
+  "Not all aquatic plants use water for pollination. 08",
+  "Majority of aquatic plants such as water hyacinth & water lily, pollination takes place by insects or wind.",
+  "Pollen grains in many such species are long, Ribbon like & carried, passively inside the water,.",
+  "Most of the water-pollinated species, pollen grains are protected from wetting by mucilaginous covering.",
+  "Both wind & water pollinated ﬂowers are not very colourful & do not produce nector.",
+  "Animals as pollinating: Bees, Butterﬂies, Flies, Beetles, wasps, Ants, moths, Birds (Sunbird & humming Birds) & Bats.",
+  "Among the animals, insects (Bees) are dominant biotic pollinating agents.",
+  "Even larger animals as pollinating agents – Primates (lemurs), Arboreal (tree-dwelling) rodents, reptiles (gecko lizard & garden lizard)",
+  "Insect-pollinated ﬂowers are: large, colourful, Fragrant & rich in nector.",
+  "The ﬂowers pollinated by ﬂies & beetles secrete foul odours to attract these animals.",
+  "Floral rewards: Nectar, pollen grain & Egg laying space",
+  "Tallest ﬂower: Amorphophallus (6 Feet in height) Moth & yucca plants can not complete their life-cycles without each other",
+  "Outbreeding Devices (Prevent selt pollination)",
+  "Non-synchronisation : Pollen release & stigma receptivity are not synchronise DOUBLE FERTILISATION",
+  "Diﬀerent position of anther & stigma",
+  "Self-incompatibility: Genetic mechanism, prevent self pollination",
+  "Monoecious plants prevent autogamy but not geitonogamy eg: castor & Maize.",
+  "Dioecious plants (each plant is either Male or Female) prevent both Autogamy & geitemogamy but not xenogamy",
+  "Pollen-Pistil Interaction: Pistil has the ability to recognise the pollen",
+  "Pollination does not gurantee the transfer of the right type of pollen.",
+  "If right type - Pistil accept the pollen - Promotes post pollination events - Leads to fertilisation",
+  "If wrong type - Pistil reject the pollen- Prevent Post pollination events- Fertilisation prevented",
+  "Study of pollen germination by dusting some pollen from ﬂowers such as of sugar solution (about 10 percent). About after 15–30 minuts observe the slide under low power lens of the microscope.",
+  "If the female parent produce unisexual ﬂowers, there is no need of emasculation only bagging occurs before the ﬂowers open.",
+  "One male gamete + egg cell nucleus - fuse - syngamy, leads to formation of zygote (2n)",
+  "Another male gamete + two polar nuclei - fuse - Triple fusion, leads to formation of primary endosperm Nucleus (3n)",
+  "Primary endosperm cell (PEC) develop into Endosperm & the zygote develops into Embryo.",
+  "Endosperm development Precedes embryo development because it provide nutrition to the developing embryo.",
+  "In the most common type of endosperm development, the PEN undergoes successive nuclear division to give rise to free nuclei called Free nuclear endosperm.",
+  "Coconut: Cellular endosperm (white kernel) Nuclear endosperm (Free nuclear)",
+  "Endosperm may either be completely consumed by developing embryo before seed maturation or may persist in mature seed.",
+  "Endospermic seed: Castor, Coconut, Wheat, Maize, Barley",
+  "Non-endospermic seed: Pea, Groundnut, Beans.",
+  "Most zygote divide only oﬀer certain amount of endosperm is formed, an adaptation to provide assured nutrition to the developing embryo.",
+  "Early stages of embryogeny are similar in both monocotyledon & dicotyledons.",
+  "In the grass family the cotyledon is called Scutellum that is situated towards one side (lateral) of the embryonal axis.",
+  "Coleoptile: Hollow foliar structure. SEED : Final product",
+  "In some seeds, reminants of nuclellus are also persistent, this residual & Persistant nucelluls called Perisperms. eg: Black pepper Beet.",
+  "Integuments of ovules harden as tough protective seed coats.",
+  "Small pore of seed coat - Micropyle",
+  "Micropyle facilitates entry of oxygen & water into the seed during germination.",
+  "As the seed matures, its water content is reduced & seed become relatively dry (10–15 percent moisture by mass)",
+  "Transformation of ovules into seeds & ovary develops into fruit proceeds simultaneously.",
+  "Pericarp - wall of fruits - - May be dry (Groundnut, Mustard)or may ﬂeshy (Guava, Orange & Mango)",
+  "False Fruit: Fruit develop not from ovary [RE-NEET-2024]",
+  "Parthenocarpic fruit: Fruit develop without fertilisation- eg: Banana",
+  "Seed have better adaptive strategies for dispersal to new habitats & help the species to colonise in other area.",
+  "Being product of sexual reproduction (seed), they generate new genetic combinations leading to variations.",
+  "Lupine (Lupinus arcticus): From Arctic Tundra, Oldest, Dormancy is 10,000 years.",
+  "Phoenix dactylifera (Date palm) : From king Herod’s palace near the Dead sea Dormancy 2000 years.",
+  "Production of seed without fertilisation",
+  "Apomixis is a form of Asexual reproduction that mimics sexual reproduction.",
+  "Diploid egg cell is formed without reduction division & develop into embryo without fertilisation.",
+  "Occurence of more than one embryo in a seed.",
+  "Progeny will segregate & do not maintain hybrid character",
+  "Reproductive Events - Gametogenesis - Insemination - Fertilisation Implantation - (Gestation) Embryonic development - Parturition",
+  "Sperm formation continues even in old man but formation of ovum ceases in women around the age of 50 years.",
+  "Male reproductive system located in pelvic region and include a pair of testis, accessary duct, glands, external genitalia.",
+  "Scrotum help in maintaining the low temprature of testes (2-2.5°C) lower than normal body temprature [2011]",
+  "Testis is situated outside abdominal cavity and each testis has 250 compartment called testicular lobule and each lobule contain 1-3 highly coiled seminiferous tubule in which sperm are produced.",
+  "Seminiferous tubule lined inside by 2 type of cell [2010]",
+  "Region outside seminiferous tubule called interstitial space contain blood vessels and interstitial cell (leydig cell)",
+  "Leydig cell synthesis and secrete testicular hormone called Androgen [2020][2012]",
+  "Male sex accessory duct include rete testis, vasa eﬀerentia, epididymis and vas deferens.",
+  "Vasa eﬀerentia leave the testis and open into epididymis located along posterior surface of each testis.",
+  "Epididymis leads to vas deferens that ascend to the abdomen and loop over urinary bladder. It receives a duct from seminal vesicle and open into urethra as ejaculatory duct.",
+  "Ejaculatory duct store and transport sperm.",
+  "Male accessary gland include paired seminal vesicles, a prostate gland and paired bulbourethral gland, secretion of these gland constitute seminal plasma rich in fructose, calcium and certain enzyme [2010]",
+  "Secretions of bulbourethral gland also help in lubrication of penis.",
+  "Female reproductive system consist of a pair of ovaries along with a pair of oviduct, uterus, cervix, vagina and external genitalia located in pelvic region.",
+  "Ovaries are primary female sex organ that produce the female gamete (ovum) and several steroid hormone (ovarian Hormones)",
+  "Each ovary is covered by thin epithelium which enclose the ovarian stroma. The stroma is divided into two zones-a peripheral cortex and an Inner Medulla.",
+  "Oviduct (fallopian tube), uterus and vagina - Female accessary duct Fallopian tube 3 part -",
+  "Uterus is single and it is also called womb (shape like Inverted pear). Uterus is attached to pelvic wall by support of ligament. 16",
+  "Uterus open into vagina through narrow cervix, the cavity of cervix i.e. cervical canal alongwith vagina forms birth canal.",
+  "Wall of uterus - (3) a. Perimetrium - External, thin membranous. b. Myometrium - Middle, thick layer of smooth muscle. c. Endometrium - Inner, glandular layer, line the uterine cavity.",
+  "Female external genitalia include mons pubis, labia majora, labia minora, hymen and clitoris. [2016]",
+  "Labia majora are ﬂeshy fold of tissue which extend down from the mons pubis and surround the vaginal opening.",
+  "Clitoris is a tiny ﬁnger-like structure which lies at the upper junction of two labia minora above the urethral opening.",
+  "Mammary gland - glandular tissue of each breast divided into 15- 20 mammary lobe, containing clusters of cell called alveoli. The cell of alveoli secrete milk which is stored in the cavities of alveoli."
+];
+
+let factTimer = null;
+function startFacts(){
+  const el = $('facts');
+  if(!el) return;
+  let i = Math.floor(Math.random() * FACTS.length);
+  el.textContent = FACTS[i];
+  if(factTimer) clearInterval(factTimer);
+  factTimer = setInterval(()=>{ el.textContent = FACTS[Math.floor(Math.random() * FACTS.length)]; }, 5000);
+}
+function stopFacts(){ if(factTimer){ clearInterval(factTimer); factTimer = null; } }
 
 function normTerms(kw){
   let n = kw.replace(/\b20\d{2}-/g,'');
@@ -197,7 +363,8 @@ $('runBtn').onclick = async () => {
   allRows = []; $('matches').innerHTML=''; $('log').textContent=''; $('bar').style.width='0%';
   log(`[*] Exam: ${exam}\n[*] Range ${s}-${e} | Score ${mn}-${mx}\n`);
   const ids=[]; for(let i=s;i<=e;i++) ids.push(i);
-  const BATCH=250, CONC=6; let done=0;
+  const BATCH=1000, CONC=6; let done=0, madeUpTo=0; const startT = Date.now();
+  startFacts();
   async function batch(chunk){
     try{
       let data = await supa('exam_results', {select:'candidate_id,exam_mark', exam_id:`eq.${exam}`, candidate_id:`in.(${chunk.join(',')})`});
@@ -215,16 +382,31 @@ $('runBtn').onclick = async () => {
         let row = {id:h.candidate_id, score:sc};
         if(wantName) row.name=h.student_name; if(wantGroup) row.group=h.groups;
         allRows.push(row);
-        $('matches').innerHTML += `<div class="match">[MATCH] ID: ${row.id} │ Score: ${sc}${wantName?' │ '+row.name:''}${wantGroup?' │ '+row.group:''}</div>`;
       });
     }catch(err){ log('[!] batch error: '+err.message); }
     done += chunk.length; $('bar').style.width = (done/ids.length*100)+'%';
+    const elapsed = (Date.now() - startT) / 1000;
+    const rate = done > 0 ? done / elapsed : 0;
+    const remaining = rate > 0 ? Math.max(0, (ids.length - done) / rate) : 0;
+    const mm = Math.floor(remaining/60), ss = Math.round(remaining%60);
+    $('etaText').textContent = done >= ids.length ? 'Complete!' : `ETA: ~${mm > 0 ? mm+'m ' : ''}${ss}s remaining (${done}/${ids.length})`;
   }
   for(let i=0;i<ids.length;i+=BATCH*CONC){
     const group = ids.slice(i,i+BATCH*CONC);
     await Promise.all(Array.from({length:CONC},(_,j)=>group.slice(j*BATCH,(j+1)*BATCH)).filter(c=>c.length).map(batch));
+    // render matches accumulated so far, once per wave (avoids DOM blocking)
+    let msel = $('matches');
+    for(let r = madeUpTo; r < allRows.length; r++){
+      let row = allRows[r];
+      let sc = row.score;
+      let html = `<div class="match">[MATCH] ID: ${row.id} │ Score: ${sc}${wantName?' │ '+row.name:''}${wantGroup?' │ '+row.group:''}</div>`;
+      msel.insertAdjacentHTML('beforeend', html);
+    }
+    madeUpTo = allRows.length;
   }
   log(`\n[+] DONE. ${allRows.length} matches.`);
+  stopFacts();
+  $('etaText').textContent = 'Complete!';
   $('dlBtn').disabled = allRows.length===0;
   drawChart();
   const doneSnd = document.getElementById('completeSnd');
