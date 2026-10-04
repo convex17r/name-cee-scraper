@@ -30,7 +30,7 @@ _P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help
 ⭐ Excel .csv report and bar chart for proper research
 
 -------
-### 📌 Preview Video:
+### 📌 Showcase Video:
 
 https://www.youtube.com/watch?v=q_4LDGCfVJ4
 [![thumbnail final](https://github.com/user-attachments/assets/105d4dd8-8f8e-4406-90fa-d495531d7394)](https://www.youtube.com/watch?v=q_4LDGCfVJ4)
