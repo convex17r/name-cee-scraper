@@ -27,7 +27,8 @@
 -------
 ### 📌 Preview Video:
 
-
+https://www.youtube.com/watch?v=q_4LDGCfVJ4
+[![thumbnail final](https://github.com/user-attachments/assets/105d4dd8-8f8e-4406-90fa-d495531d7394)](https://www.youtube.com/watch?v=q_4LDGCfVJ4)
 
 -----------
 ### ❓ How to use:
