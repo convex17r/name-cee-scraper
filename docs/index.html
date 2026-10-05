@@ -6,6 +6,7 @@
 <title>NAME CEE Model Test Scraper</title>
 <link rel="icon" type="image/gif" href="nepalflag.gif">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <style>
   :root { --bg:#0f1117; --panel:#1e212b; --border:#3a4152; --red:#e03131; --txt:#e9ecef; --dim:#9aa0ae; --cyan:#22d3ee; --green:#4ade80; --yellow:#facc15; --selbg:#2a1518; }
   * { box-sizing:border-box; }
@@ -107,7 +108,8 @@
 
   <div class="panel">
     <h2>MARKS DISTRIBUTION</h2>
-    <canvas id="chart" height="120"></canvas>
+    <div id="legendChips" style="margin:0 0 6px;font-size:12px;color:var(--txt);display:flex;gap:10px;flex-wrap:wrap"></div>
+    <div style="position:relative;width:100%;height:340px"><canvas id="chart"></canvas></div>
     <div id="chartStats" style="margin-top:10px;font-size:13px;color:var(--txt);background:#1e212b;border:1px solid var(--border);padding:12px;line-height:1.9"></div>
     <div style="margin-top:8px;font-size:11px;color:var(--dim)">⚠ Avoid giving too much requests too fast; you may be rate-limited or temporarily blocked.</div>
     <div class="row" style="margin-top:10px">
@@ -424,10 +426,15 @@ function examDate(exam) {
 function drawChart(){
   if(!allRows.length || !currentExam) return;
   const scores = allRows.map(r=>r.score);
-  const lo = Math.min(...scores), hi = Math.max(...scores), bins=30, w=(hi-lo||1)/bins;
+  const lo = Math.min(...scores), hi = Math.max(...scores);
+  // cover the full 0 .. rounded-max range so nothing gets clipped
+  const axLo = 0;
+  const axHi = Math.ceil(hi/10)*10;
+  const bins = 30, w = (axHi - axLo)/bins;
   const counts = new Array(bins).fill(0);
-  scores.forEach(s=>counts[Math.min(bins-1, Math.floor((s-lo)/w))]++);
-  const labels = counts.map((_,i)=>Math.round(lo+i*w));
+  scores.forEach(s=>counts[Math.min(bins-1, Math.max(0, Math.floor((s-axLo)/w)))]++);
+  // linear x-axis points with exact (un-rounded) centers for perfectly even spacing
+  const points = counts.map((c,i)=>({x: axLo + (i+0.5)*w, y: c}));
   const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
   const sorted=[...scores].sort((a,b)=>a-b);
   const median = sorted.length%2? sorted[(sorted.length-1)/2] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
@@ -435,30 +442,51 @@ function drawChart(){
   // clean teal gradient (area fill), fixed sizes kept simple
   const fg = '#e9ecef';
   const dim = '#9aa0ae';
+  const colors = points.map((_,i)=>`hsl(${i/bins*280},80%,55%)`);
   chart = new Chart($('chart'), {
-    type:'line',
-    data:{ labels, datasets:[{
-      label:'Candidates', data:counts, fill:true, tension:0.3,
-      borderColor:'#facc15',
-      backgroundColor:(()=>{const c0=document.getElementById('chart').getContext('2d');const g0=c0.createLinearGradient(0,0,0,300);g0.addColorStop(0,'rgba(250,204,21,0.55)');g0.addColorStop(1,'rgba(250,204,21,0.03)');return g0;})(),
-      pointRadius:2, pointBackgroundColor:'#facc15', pointBorderColor:'white', pointBorderWidth:0.5
-    }]},
+    type:'bar',
+    data:{ datasets:[
+      { label:'Candidates', data:points, backgroundColor:colors, borderColor:'white', borderWidth:0.5, order:3, barPercentage:1.0, categoryPercentage:0.95 },
+    ]},
     options:{
+      responsive:true, maintainAspectRatio:false,
+      devicePixelRatio:3, // much sharper canvas + downloaded PNGs
+      events: ['mousemove','mouseout','click','touchstart','touchmove'], // interactive again
       layout:{padding:{top:18}},
       plugins:{
+        tooltip:{enabled:true, backgroundColor:'#1e212b', borderColor:'#3a4152', borderWidth:1, titleColor:'#e9ecef', bodyColor:'#e9ecef'},
         title:{ display:true, text:`${currentExam.replace(/\s*results?\s*$/i,'').toUpperCase()}  —  ${examDate(currentExam)}  —  MARKS DISTRIBUTION`, color:fg, font:{size:18, weight:'bold'} },
         subtitle:{ display:true, text:`Distribution of marks across ${scores.length.toLocaleString()} candidates`, color:dim, font:{size:13} },
-        legend:{ position:'top', align:'start', labels:{color:fg} },
+        legend:{ display:false }, // custom legend chips are injected below the canvas
+        datalabels:{ display:true, color:'white', font:{size:9}, anchor:'end', align:'top', formatter:v=> (v && v.y)>0? v.y : '' },
       },
-      scales:{ x:{ticks:{color:fg, maxTicksLimit:15}}, y:{ticks:{color:fg}} }
+      scales:{ x:{type:'linear', min:axLo, max:axHi, ticks:{stepSize:10, color:fg}, title:{display:true, text:'Marks', color:fg}}, y:{ticks:{color:fg}, title:{display:true, text:'Number of Candidates', color:fg}} }
     },
-    plugins:[{ id:'wm', afterDraw(c){
+    plugins:[ChartDataLabels, { id:'vlines', afterDatasetsDraw(c){
+      const xs=c.scales.x; if(!xs) return;
+      const lines = [
+        {v:avg,   dash:[6,6], color:'#facc15'},
+        {v:median,dash:[2,4], color:'#22d3ee'},
+      ];
+      lines.forEach(L=>{
+        const a = c.chartArea; if(!a) return;
+        const x = c.scales.x.getPixelForValue(L.v);
+        c.ctx.save();
+        c.ctx.strokeStyle = L.color; c.ctx.setLineDash(L.dash); c.ctx.lineWidth = 2;
+        c.ctx.beginPath(); c.ctx.moveTo(x, a.top); c.ctx.lineTo(x, a.bottom); c.ctx.stroke();
+        c.ctx.restore();
+      });
+    } }, { id:'wm', afterDraw(c){
       const a=c.chartArea; if(!a)return;
       const c2=c.ctx;
       // convex17r watermark
-      c2.save(); c2.globalAlpha=0.10; c2.fillStyle='rgba(255,255,255,0.10)'; c2.font='bold 42px Consolas'; c2.translate((a.left+a.right)/2,(a.top+a.bottom)/2); c2.rotate(-0.35); c2.textAlign='center'; c2.fillText('convex17r',0,0); c2.restore();
+      c2.save(); c2.globalAlpha=0.05; c2.fillStyle='#ffffff'; c2.font='bold 40px Times New Roman'; c2.translate((a.left+a.right)/2,(a.top+a.bottom)/2); c2.rotate(-0.35); c2.textAlign='center'; c2.fillText('convex17r',0,0); c2.restore();
     } }]
   });
+  $('legendChips').innerHTML =
+    `<span><span style="display:inline-block;width:14px;border-top:3px dashed #facc15;vertical-align:middle;margin-right:4px"></span>Mean: ${avg.toFixed(1)}</span>`+
+    `<span><span style="display:inline-block;width:14px;border-top:3px dotted #22d3ee;vertical-align:middle;margin-right:4px"></span>Median: ${median.toFixed(1)}</span>`+
+    `<span><span style="display:inline-block;width:10px;height:10px;background:#e03131;vertical-align:middle;margin-right:4px"></span>Candidates</span>`;
   $('chartStats').innerHTML =
     `SCAN SUMMARY<br>Candidates : <b>${scores.length.toLocaleString()}</b><br>Mean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <b>${avg.toFixed(1)}</b><br>Median&nbsp;&nbsp;&nbsp;: <b>${median.toFixed(1)}</b><br>Highest&nbsp;&nbsp;: <b>${hi}</b><br>Lowest&nbsp;&nbsp;&nbsp;: <b>${lo}</b>`;
   $('dlChartBtn').disabled = false;
