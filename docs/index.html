@@ -109,7 +109,9 @@
   <div class="panel">
     <h2>MARKS DISTRIBUTION</h2>
     <div id="legendChips" style="margin:0 0 6px;font-size:12px;color:var(--txt);display:flex;gap:10px;flex-wrap:wrap"></div>
-    <div style="position:relative;width:100%;height:340px"><canvas id="chart"></canvas></div>
+    <div style="position:relative;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <div style="position:relative;width:140%;min-width:520px;aspect-ratio:2/1;min-height:300px;max-height:520px"><canvas id="chart"></canvas></div>
+    </div>
     <div id="chartStats" style="margin-top:10px;font-size:13px;color:var(--txt);background:#1e212b;border:1px solid var(--border);padding:12px;line-height:1.9"></div>
     <div style="margin-top:8px;font-size:11px;color:var(--dim)">⚠ Avoid giving too much requests too fast; you may be rate-limited or temporarily blocked.</div>
     <div class="row" style="margin-top:10px">
@@ -440,8 +442,14 @@ function drawChart(){
   const median = sorted.length%2? sorted[(sorted.length-1)/2] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
   if(chart) chart.destroy();
   // clean teal gradient (area fill), fixed sizes kept simple
+  const isMobile = window.matchMedia && window.matchMedia('(max-width:640px)').matches;
   const fg = '#e9ecef';
   const dim = '#9aa0ae';
+  const titleFont = isMobile ? 14 : 18;
+  const subtitleFont = isMobile ? 11 : 13;
+  const axisTickFont = isMobile ? 8 : 10;
+  const legendFont = isMobile ? 10 : 12;
+  const datalabelSize = isMobile ? 7 : 8;
   const colors = points.map((_,i)=>`hsl(${i/bins*280},80%,55%)`);
   chart = new Chart($('chart'), {
     type:'bar',
@@ -449,20 +457,20 @@ function drawChart(){
       { label:'Candidates', data:points, backgroundColor:colors, borderColor:'white', borderWidth:0.5, order:3, barPercentage:1.0, categoryPercentage:0.95 },
     ]},
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true, maintainAspectRatio:true, aspectRatio:2,
       devicePixelRatio:3, // much sharper canvas + downloaded PNGs
       events: ['mousemove','mouseout','click','touchstart','touchmove'], // interactive again
       layout:{padding:{top:18}},
       plugins:{
         tooltip:{enabled:true, backgroundColor:'#1e212b', borderColor:'#3a4152', borderWidth:1, titleColor:'#e9ecef', bodyColor:'#e9ecef'},
-        title:{ display:true, text:`${currentExam.replace(/\s*results?\s*$/i,'').toUpperCase()}  —  ${examDate(currentExam)}  —  MARKS DISTRIBUTION`, color:fg, font:{size:18, weight:'bold'} },
-        subtitle:{ display:true, text:`Distribution of marks across ${scores.length.toLocaleString()} candidates`, color:dim, font:{size:13} },
+        title:{ display:true, text:`${currentExam.replace(/\s*results?\s*$/i,'').toUpperCase()}  —  ${examDate(currentExam)}  —  MARKS DISTRIBUTION`, color:fg, font:{size:titleFont, weight:'bold'} },
+        subtitle:{ display:true, text:`Distribution of marks across ${scores.length.toLocaleString()} candidates`, color:dim, font:{size:subtitleFont} },
         legend:{ display:false }, // custom legend chips are injected below the canvas
-        datalabels:{ display:true, color:'white', font:{size:9}, anchor:'end', align:'top', formatter:v=> (v && v.y)>0? v.y : '' },
+        datalabels:{ display:true, color:'white', font:{size:datalabelSize}, anchor:'end', align:'top', formatter:v=> (v && v.y)>0? v.y : '' },
       },
-      scales:{ x:{type:'linear', min:axLo, max:axHi, ticks:{stepSize:10, color:fg}, title:{display:true, text:'Marks', color:fg}}, y:{ticks:{color:fg}, title:{display:true, text:'Number of Candidates', color:fg}} }
+      scales:{ x:{type:'linear', min:axLo, max:axHi, ticks:{stepSize:isMobile?20:10, color:fg, font:{size:axisTickFont}}, title:{display:true, text:'Marks', color:fg, font:{size:11}}}, y:{ticks:{color:fg, font:{size:axisTickFont}}, title:{display:true, text:'Number of Candidates', color:fg, font:{size:11}}} }
     },
-    plugins:[ChartDataLabels, { id:'vlines', afterDatasetsDraw(c){
+    plugins:[ChartDataLabels, { id:'bg', beforeDraw(c){ c.ctx.save(); c.ctx.fillStyle = '#0f1117'; c.ctx.fillRect(0,0,c.width,c.height); c.ctx.restore(); } }, { id:'vlines', afterDatasetsDraw(c){
       const xs=c.scales.x; if(!xs) return;
       const lines = [
         {v:avg,   dash:[6,6], color:'#facc15'},
