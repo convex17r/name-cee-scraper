@@ -41,8 +41,27 @@
   .exam { padding:7px 10px; border:1px solid var(--border); border-radius:0; margin-bottom:6px; cursor:pointer; word-break:break-word; }
   .exam:hover, .exam.sel { border-color:var(--red); background:var(--selbg); }
   #log { white-space:pre-wrap; font-size:12px; color:var(--green); background:#0f1117; border:1px solid var(--border); border-radius:0; padding:10px; height:130px; overflow:auto; }
-  #progress { height:14px; background:#0f1117; border:1px solid var(--border); border-radius:0; overflow:hidden; margin-top:10px; }
-  #bar { height:100%; width:0%; background:linear-gradient(90deg,#4ade80,#22d3ee); transition:width .2s; }
+  #progress { height:18px; background:#0b0b0b; border:1px solid #3a3a3a; border-radius:0; overflow:visible; margin-top:12px; position:relative; box-shadow:inset 0 0 6px rgba(0,0,0,0.8); }
+  /* ---- segmented LOADING bar (inline, below START SCAN) ---- */
+  #segStage { display:none; margin-top:12px; }
+  #segStage.on { display:block; }
+  #segTitle { color:#00e676; font-size:13px; letter-spacing:3px; margin-bottom:6px; }
+  #segBar { display:flex; gap:3px; height:22px; padding:3px; border:2px solid #6f7684; background:#1b1f27; }
+  #segBar .seg { flex:1; background:#2a2f3a; transition:background .12s linear; }
+  #segBar .seg.on { background:#00e676; }
+  #segBar .seg.head { background:#eaffef; }
+
+  #bar { height:100%; width:0%; position:relative; border-radius:0;
+         background:linear-gradient(90deg,#4a4a4a 0%,#6d6d6d 55%,#9a9a9a 80%,#c98b3a 92%,#ff8c1a 100%);
+         transition:width .2s; box-shadow:0 0 6px rgba(255,140,26,0.35); }
+  #bar::after { content:""; position:absolute; right:-9px; top:50%; width:16px; height:16px; margin-top:-8px; border-radius:50%;
+                background:radial-gradient(circle,#fff7d6 0%,#ffd166 30%,#ff7a00 62%,rgba(255,90,0,0) 78%);
+                animation:flicker .28s infinite alternate; filter:drop-shadow(0 0 10px #ff8c1a); z-index:2; }
+  #bar::before { content:""; position:absolute; right:-4px; bottom:60%; width:10px; height:10px; border-radius:50%;
+                 background:radial-gradient(circle,rgba(220,220,220,0.5) 0%,rgba(200,200,200,0) 70%);
+                 animation:smoke 2.4s ease-out infinite; }
+  @keyframes flicker { from{ transform:scale(1); filter:drop-shadow(0 0 8px #ff8c1a);} to{ transform:scale(1.3); filter:drop-shadow(0 0 16px #ffb347);} }
+  @keyframes smoke { 0%{ transform:translateY(0) scale(0.6); opacity:0.7;} 100%{ transform:translateY(-26px) scale(1.6); opacity:0;} }
   #matches { max-height:180px; overflow:auto; font-size:12px; }
   .match { color:var(--green); word-break:break-word; }
   footer { text-align:center; color:var(--dim); font-size:12px; margin-top:20px; }
@@ -88,6 +107,8 @@
     <div class="sub">Batch Result Extraction Script by: <a href="https://t.me/convex17r" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">convex17r</a></div>
   </header>
 
+  <audio id="sparkSnd" src="spark.mp3" preload="auto"></audio>
+
   <div class="panel">
     <h2>SELECT EXAM</h2>
     <label>Search Exam database by keyword (e.g. 2083-05-13, 06-17, Day Shift)</label>
@@ -116,7 +137,9 @@
       <option value="score">Score Only</option>
     </select>
     <button id="runBtn" style="margin-top:12px">START SCAN</button>
-    <div id="progress"><div id="bar"></div></div>
+    <div id="segStage">
+      <div id="segBar"></div>
+    </div>
     <div id="etaText" style="margin-top:6px;font-size:12px;color:var(--dim)"></div>
     <div id="facts" style="margin-top:10px;font-size:12px;color:var(--yellow);background:#161a24;border:1px dashed var(--border);padding:10px;min-height:40px"></div>
   </div>
@@ -165,7 +188,7 @@ const FACTS = [
   "Flowers are morphological & embryological marvels & the site of sexual reproduction.",
   "Several hormonal & structural changes leads to the development of ﬂoral primordium.",
   "A ﬂower is a modiﬁed shoot for reproduction.",
-  "A typical male stamen has two part.",
+  "A typical stamen has two part.",
   "Filament (Long & slender stalk)",
   "Anther (Terminal, generally bilobed structure)",
   "The proximal end of the ﬁlament is attached to the thalamus or Petal of the ﬂower",
@@ -325,6 +348,43 @@ function startFacts(){
 }
 function stopFacts(){ if(factTimer){ clearInterval(factTimer); factTimer = null; } }
 
+/* ---- segmented loading bar control ---- */
+const SEG_COUNT = 30;
+let segs = [];
+function buildSegs(){
+  const bar = $('segBar');
+  bar.innerHTML = '';
+  segs = [];
+  for(let i=0;i<SEG_COUNT;i++){
+    const d = document.createElement('div');
+    d.className = 'seg';
+    bar.appendChild(d);
+    segs.push(d);
+  }
+}
+function startCigarette(){
+  const stage = $('segStage');
+  if(!stage) return;
+  buildSegs();
+  stage.classList.add('on');
+  const sp = $('sparkSnd');
+  if(sp){ sp.currentTime = 0; sp.volume = 0.7; sp.play().catch(()=>{}); }
+}
+function burnCigarette(pct){
+  const p = Math.max(0, Math.min(100, pct));
+  const filled = Math.round((p/100) * SEG_COUNT);
+  for(let i=0;i<SEG_COUNT;i++){
+    segs[i].classList.toggle('on', i < filled);
+    segs[i].classList.toggle('head', i === filled && filled < SEG_COUNT);
+  }
+}
+function endCigarette(){
+  const stage = $('segStage');
+  if(!stage) return;
+  burnCigarette(100);
+  setTimeout(()=>{ stage.classList.remove('on'); }, 2500);
+}
+
 function normTerms(kw){
   let n = kw.replace(/\b20\d{2}-/g,'');
   let t = n.toLowerCase().split(/[^a-z0-9\-]+/).filter(Boolean);
@@ -390,11 +450,12 @@ $('runBtn').onclick = async () => {
   let mn = +$('min').value, mx = +$('max').value; if(mn>mx) [mn,mx]=[mx,mn];
   const m = $('metrics').value; const wantName = m==='name'||m==='both';
   const wantGroup = m==='group'||m==='both';
-  allRows = []; $('matches').innerHTML=''; $('log').textContent=''; $('bar').style.width='0%';
+  allRows = []; $('matches').innerHTML=''; $('log').textContent='';
   log(`[*] Exam: ${exam}\n[*] Range ${s}-${e} | Score ${mn}-${mx}\n`);
   const ids=[]; for(let i=s;i<=e;i++) ids.push(i);
   const BATCH=1000, CONC=6; let done=0, madeUpTo=0; const startT = Date.now();
   startFacts();
+  startCigarette();
   async function batch(chunk){
     try{
       let data = await supa('exam_results', {select:'candidate_id,exam_mark', exam_id:`eq.${exam}`, candidate_id:`in.(${chunk.join(',')})`});
@@ -414,7 +475,8 @@ $('runBtn').onclick = async () => {
         allRows.push(row);
       });
     }catch(err){ log('[!] batch error: '+err.message); }
-    done += chunk.length; $('bar').style.width = (done/ids.length*100)+'%';
+    done += chunk.length;
+    burnCigarette((done/ids.length*100));
     const elapsed = (Date.now() - startT) / 1000;
     const rate = done > 0 ? done / elapsed : 0;
     const remaining = rate > 0 ? Math.max(0, (ids.length - done) / rate) : 0;
@@ -436,6 +498,7 @@ $('runBtn').onclick = async () => {
   }
   log(`\n[+] DONE. ${allRows.length} matches.`);
   stopFacts();
+  endCigarette();
   $('etaText').textContent = 'Complete!';
   $('dlBtn').disabled = allRows.length===0;
   drawChart();
