@@ -1,4 +1,4 @@
-_P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help in this project._
+
 <img width="354" height="128" alt="image" src="https://github.com/user-attachments/assets/219090ab-8f76-46ac-855d-b28d8b726efd" />
 
 
@@ -57,3 +57,4 @@ https://www.youtube.com/watch?v=q_4LDGCfVJ4
 [![thumbnail final](https://github.com/user-attachments/assets/105d4dd8-8f8e-4406-90fa-d495531d7394)](https://www.youtube.com/watch?v=q_4LDGCfVJ4)
 
 -----------
+_P.S. It's vibe coded; special thanks to **[Flegde Alpha - Open Code]** for help in this project._
